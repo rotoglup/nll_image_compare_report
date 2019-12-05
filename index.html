@@ -1,40 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>BeerSlider</title>
+  <title>Images compare</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="BeerSlider.css">
-</head>
-<body>
-  <div id="comparisons"></div>
-  <div id="slider" class="beer-slider" data-beer-label="after">
-    <img src="image-warmsphere-baltic.jpg" alt="Original">
-    <div class="beer-reveal" data-beer-label="before">
-      <img src="image-original-baltic.jpg" alt="Processed">
-    </div>
-  </div>    
 
-  <!-- library -->
+  <link rel="stylesheet" href="BeerSlider.css">
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #112F41;
+    }
+    a, a:visited {
+      color: white;
+    }
+    a:hover, a:active {
+      color: #80FFFF;
+    }
+    img {
+      max-height: 80vh;
+      background-image: radial-gradient(rgba(255,255,255,0.15) 15%, transparent 16%), radial-gradient(rgba(255,255,255,0.15) 15%, transparent 16%);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+    }
+    ul {
+      list-style: none;
+    }
+    ul li::before {
+      content: "\2022";
+      color: white;
+      font-weight: bold;
+      display: inline-block;
+      width: 1rem;
+    }
+    #indextable {
+      background-color: rgba(0,0,0,0.2);
+      padding: 1rem .5rem;
+    }
+    #indextable {
+      list-style-position: inside;
+    }
+    #indextable:before {
+      content: 'Images';
+      color: white;
+      display: block;
+      height: 2rem;
+    }
+    #comparisons {
+    }
+    .cmp-item {
+      margin-bottom: .5rem;
+    }
+    .cmp-item:nth-child(odd) {
+      background-color: rgba(0,0,0,0.1)
+    }
+    .cmp-title {
+      font-weight: bold;
+      color: #ffffff;
+      padding: .5rem;
+    }
+    .beer-reveal {
+      border-right: 1px solid rgba(0,0,0,0.15);
+    }
+    .beer-handle {
+      color: #FFF;
+      background: rgba(17, 47, 65, 0.5);
+    }
+    .beer-range:focus ~ .beer-handle {
+      color: #80FFFF;
+      background: rgba(17, 47, 65, 0.85);
+    }
+
+  </style>
+
+  <script src="configuration.js"></script>
   <script src="BeerSlider.js"></script>
-  <!-- init -->
   <script>
 
-    var COMPARISONS = [
-      { title: "Baltic", 
-        before: { label: "Before", url: "image-original-baltic.jpg" }, 
-        after: { label: "After", url: "image-warmsphere-baltic.jpg" } 
-      }
-    ]
-
-    function buildCmpItem(title, before, after)
+    function buildCmpItem(title, before, after, anchorName)
     {
       var itemdiv = document.createElement('div');
-      
+      itemdiv.className = 'cmp-item';
+
       var titlediv = document.createElement('div');
       titlediv.innerHTML = title;
       titlediv.className = 'cmp-title';
-      
+
+      if (anchorName !== null && anchorName !== undefined)
+      {
+        var adiv = document.createElement('a');
+        adiv.setAttribute('name', anchorName);
+        adiv.appendChild(titlediv);
+        titlediv = adiv;
+      }
+
       var slider = buildSlider(before, after);
       itemdiv.appendChild(titlediv);
       itemdiv.appendChild(slider);
@@ -48,11 +107,11 @@
     {
       var slider = document.createElement('div');
       slider.className = 'beer-slider';
-      slider.setAttribute('data-beer-label', 'after');
+      slider.setAttribute('data-beer-label', after.label);
 
       var reveal = document.createElement('div');
       reveal.className = 'beer-reveal';
-      reveal.setAttribute('data-beer-label', 'before');
+      reveal.setAttribute('data-beer-label', before.label);
 
       var afterimg = document.createElement('img');
       afterimg.setAttribute('src', after.url);
@@ -70,16 +129,40 @@
       return slider;
     }
 
-    var rootdiv = document.getElementById('comparisons');
+    function buildDocument(comparisons)
+    {
+      var indexdiv = document.getElementById('indextable')
+      var rootdiv = document.getElementById('comparisons');
 
-    for (var i in COMPARISONS) {
+      for (var i in comparisons) {
 
-      var data = COMPARISONS[i];
-      var item = buildCmpItem(data.title, data.before, data.after);
-      rootdiv.appendChild(item);
+        var data = comparisons[i];
+        var anchorName = i;
+
+        linkdiv = document.createElement('li');
+        linkadiv = document.createElement('a');
+        linkadiv.innerHTML = data.title;
+        linkadiv.setAttribute('href', '#'+anchorName);
+        linkdiv.appendChild(linkadiv);
+        indexdiv.appendChild(linkdiv)
+
+        var item = buildCmpItem(data.title, data.before, data.after, anchorName);
+        rootdiv.appendChild(item);
+      }
     }
+  </script>
 
-    new BeerSlider( document.getElementById( "slider" ) );
+</head>
+<body>
+
+  <ul id="indextable"></ul>
+  <div id="comparisons"></div>
+
+  <script>
+    window.onload = function() { 
+      var comparisons = window.CFG_COMPARISONS;           // NOTE(nll) in configuration.js
+      buildDocument(comparisons);
+    }
   </script>
 
 </body>
