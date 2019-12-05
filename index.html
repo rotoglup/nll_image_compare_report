@@ -7,17 +7,80 @@
   <link rel="stylesheet" href="BeerSlider.css">
 </head>
 <body>
-  <div id="slider" class="beer-slider" data-beer-label="before">
-    <img src="image-original-baltic.jpg" alt="Original">
-    <div class="beer-reveal" data-beer-label="after">
-      <img src="image-warmsphere-baltic.jpg" alt="Processed">
+  <div id="comparisons"></div>
+  <div id="slider" class="beer-slider" data-beer-label="after">
+    <img src="image-warmsphere-baltic.jpg" alt="Original">
+    <div class="beer-reveal" data-beer-label="before">
+      <img src="image-original-baltic.jpg" alt="Processed">
     </div>
   </div>    
+
   <!-- library -->
   <script src="BeerSlider.js"></script>
   <!-- init -->
   <script>
-    new BeerSlider( document.getElementById( "slider" ) );    
+
+    var COMPARISONS = [
+      { title: "Baltic", 
+        before: { label: "Before", url: "image-original-baltic.jpg" }, 
+        after: { label: "After", url: "image-warmsphere-baltic.jpg" } 
+      }
+    ]
+
+    function buildCmpItem(title, before, after)
+    {
+      var itemdiv = document.createElement('div');
+      
+      var titlediv = document.createElement('div');
+      titlediv.innerHTML = title;
+      titlediv.className = 'cmp-title';
+      
+      var slider = buildSlider(before, after);
+      itemdiv.appendChild(titlediv);
+      itemdiv.appendChild(slider);
+
+      new BeerSlider(slider);
+
+      return itemdiv;
+    }
+
+    function buildSlider(before, after)
+    {
+      var slider = document.createElement('div');
+      slider.className = 'beer-slider';
+      slider.setAttribute('data-beer-label', 'after');
+
+      var reveal = document.createElement('div');
+      reveal.className = 'beer-reveal';
+      reveal.setAttribute('data-beer-label', 'before');
+
+      var afterimg = document.createElement('img');
+      afterimg.setAttribute('src', after.url);
+      afterimg.setAttribute('alt', after.label);
+
+      var beforeimg = document.createElement('img');
+      beforeimg.setAttribute('src', before.url);
+      beforeimg.setAttribute('alt', before.label);
+
+      reveal.appendChild(beforeimg);
+
+      slider.appendChild(afterimg);
+      slider.appendChild(reveal);
+
+      return slider;
+    }
+
+    var rootdiv = document.getElementById('comparisons');
+
+    for (var i in COMPARISONS) {
+
+      var data = COMPARISONS[i];
+      var item = buildCmpItem(data.title, data.before, data.after);
+      rootdiv.appendChild(item);
+    }
+
+    new BeerSlider( document.getElementById( "slider" ) );
   </script>
+
 </body>
 </html>
