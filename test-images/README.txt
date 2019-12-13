@@ -1,0 +1,1 @@
+The images have been rendered with Blender 2.81, using Christophe SEUX's [demo "Class room" scene](https://www.blender.org/download/demo-files/)

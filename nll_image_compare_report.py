@@ -30,9 +30,6 @@ def main(argv):
   if args is None:
     return
 
-  import pkgutil
-  pkgutil.get_data('__main__', 'index.html')
-
   if args.folderPath2 is None:
 
     folderPath = args.folderPath1
@@ -43,7 +40,11 @@ def main(argv):
     isOk = validateImagesVariants(variants)
 
     encVariants = encodeVariantsConfiguration(variants)
-    print( "window.CFG_COMPARISONS =", json.dumps(encVariants, indent=2) )
+
+    configurationJSstr = "window.CFG_COMPARISONS =" + json.dumps(encVariants, indent=2)
+
+    writeAssetsToFolder(args.folderPath1)
+    writeConfigurationJS(args.folderPath1, configurationJSstr)
 
   else:
 
@@ -194,8 +195,8 @@ def encodeCmpValue(title, variants):
 class Arguments:
 
   def __init__(self):
-    folderPath1 = None
-    folderPath2 = None
+    self.folderPath1 = None
+    self.folderPath2 = None
 
 
 def validateCmdLineArgs(argv):
@@ -244,8 +245,62 @@ def validateCmdLineArgs(argv):
 
   if showUsageMessage:
     logInfo(argv[0])
+    logInfo(__file__)
 
   return result
+
+#-----------------------------------------------------------------------------
+
+def writeAssetsToFolder(dstFolderPath):
+
+  srcNames = [
+    'index.html',
+    'nll-image-compare-report-files/configuration.js',
+    'nll-image-compare-report-files/BeerSlider.js',
+    'nll-image-compare-report-files/BeerSlider.css',
+  ]
+
+  for name in srcNames:
+    data = _getAssetData("assets/"+name)
+    
+    dstFilePath = os.path.join(dstFolderPath, name)
+    dstFilePath = os.path.normpath(dstFilePath)
+    
+    dstSubfolderPath = os.path.dirname(dstFilePath)
+    if not os.path.isdir(dstSubfolderPath):
+      os.makedirs(dstSubfolderPath)
+    
+    with open(dstFilePath, 'wb') as f:
+      f.write(data)
+
+
+"""
+Get absolute path to resource, works for dev and for PyInstaller
+"""
+_RSC_BASE_PATH = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+
+def _getAssetData(relativeFilePath):
+
+  # NOTE(nll) I could not get pkgutil.get_data work both in dev & PyInstaller so I rely on 
+  #   https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile
+  absFilePath = os.path.join(_RSC_BASE_PATH, relativeFilePath)
+  absFilePath = os.path.normpath(absFilePath)
+  with open(absFilePath, 'rb') as f:
+    return f.read()
+
+
+def writeConfigurationJS(dstFolderPath, configurationJSstr):
+
+  dstFilePath = 'nll-image-compare-report-files/configuration.js'
+  dstFilePath = os.path.join(dstFolderPath, dstFilePath)
+  dstFilePath = os.path.normpath(dstFilePath)
+  
+  dstSubfolderPath = os.path.dirname(dstFilePath)
+  if not os.path.isdir(dstSubfolderPath):
+    os.makedirs(dstSubfolderPath)
+  
+  with open(dstFilePath, 'w') as f:
+    f.write(configurationJSstr)
 
 #-----------------------------------------------------------------------------
 
