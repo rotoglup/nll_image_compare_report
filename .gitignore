@@ -1,5 +1,7 @@
 __pycache__/
 build/
 dist/
-test-images/nll-image-compare-report-files/
-test-images/index.html
+test-images-one-folder/nll-image-compare-report-files/
+test-images-one-folder/index.html
+test-images-two-folders/nll-image-compare-report-files/
+test-images-two-folders/index.html

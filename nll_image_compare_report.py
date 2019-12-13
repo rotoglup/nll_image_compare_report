@@ -37,32 +37,45 @@ def main(argv):
 
     variants = findImagesVariants(imageNames, '-')
 
-    isOk = validateImagesVariants(variants)
-
     encVariants = encodeVariantsConfiguration(variants)
 
-    configurationJSstr = "window.CFG_COMPARISONS =" + json.dumps(encVariants, indent=2)
+    isOk = validateImagesVariants(encVariants)
 
-    writeAssetsToFolder(args.folderPath1)
-    writeConfigurationJS(args.folderPath1, configurationJSstr)
+    if isOk:
+
+      configurationJSstr = "window.CFG_COMPARISONS =" + json.dumps(encVariants, indent=2)
+
+      writeAssetsToFolder(args.folderPath1)
+      writeConfigurationJS(args.folderPath1, configurationJSstr)
 
   else:
 
     folderPath1 = args.folderPath1
     folderPath2 = args.folderPath2
 
-    if os.path.split(folderPath1)[0].lower() != os.path.split(folderPath2)[0].lower():
-      raise RuntimeError("Both folders must be in the same root folder")
+    rootFolderPath = os.path.split(folderPath1)[0]
+
+    if rootFolderPath.lower() != os.path.split(folderPath2)[0].lower():
+      logError("Both folders must be in the same root folder")
+      input('\nPress Enter to close.')
+      return
 
     folderName1 = os.path.split(folderPath1)[1]
     imageNames1 = findImagesInFolder(folderPath1)
 
     folderName2 = os.path.split(folderPath2)[1]
     imageNames2 = findImagesInFolder(folderPath2)
-    print(imageNames2)
 
     encVariants = encodeVariantsConfiguration2folder(folderName1, imageNames1, folderName2, imageNames2)
-    print( "window.CFG_COMPARISONS =", json.dumps(encVariants, indent=2) )
+
+    isOk = validateImagesVariants(encVariants)
+
+    if isOk:
+
+      configurationJSstr = "window.CFG_COMPARISONS = " + json.dumps(encVariants, indent=2)
+
+      writeAssetsToFolder(rootFolderPath)
+      writeConfigurationJS(rootFolderPath, configurationJSstr)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -144,6 +157,8 @@ def encodeVariantsConfiguration(variants):
 
 def encodeVariantsConfiguration2folder(folderName1, imageNames1, folderName2, imageNames2):
 
+  logInfo("Searching for variants...")
+
   allImages = dict()
   for name in imageNames1:
     allImages[name] = 1 | allImages.get(name,0) 
@@ -160,7 +175,11 @@ def encodeVariantsConfiguration2folder(folderName1, imageNames1, folderName2, im
     foldersBitMask = allImages[name]
 
     value = {}
-    value['title'] = name
+    value['title'] = os.path.splitext(name)[0]
+
+    if foldersBitMask != 3:
+      logInfo("   * Skipped image without variant : '%s'" % name)
+      continue
 
     url = None
     if foldersBitMask & 1 != 0:
@@ -173,6 +192,8 @@ def encodeVariantsConfiguration2folder(folderName1, imageNames1, folderName2, im
     value['after'] = { 'label': folderName2, 'url': url }
 
     result.append(value)
+
+  logInfo("    * found %d images with variants." % len(result))
 
   return result
 
@@ -308,11 +329,10 @@ def validateImagesVariants(images):
 
   logInfo("Images variants are :")
 
-  names = sorted(images.keys())
-  for name in names:
-    variants = images[name]
-    variantNames = str(list(sorted(variants.keys())))
-    logInfo("* '%s', %d variants :" % (name, len(variants)))
+  for image in images:
+    title = image['title']
+    variantNames = [ image['before']['label'], image['after']['label'] ]
+    logInfo("* '%s' :" % title)
     logInfo("    * %s" % variantNames)
   
   logInfo("")

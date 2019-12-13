@@ -1,10 +1,16 @@
-A tool for generating an HTML change report between images in a folder.
+A tool for generating an HTML change report between images in one or two folders.
 
-> An example report can be seen [here](https://nllsoft.com/tools/nll_image_compare_report/example_report/), it has been generated using the `test-images/` folder in the repo.
+> An example report can be seen [here](https://nllsoft.com/tools/nll_image_compare_report/example_report/), it has been generated using the `test-images-one-folder/` folder in the repo.
+
+# Usage, two folders
+
+Drop two folders, containing images to compare, on the executable - the HTML report will be written in the parent folder.
+
+Images with the same name are compared in the report.
+
+# Usage, one folder
 
 ![Usage illustration](doc/usage-illustration.gif)
-
-# Usage
 
 Drop an images folder on the executable - the HTML report will be written in the folder.
 
