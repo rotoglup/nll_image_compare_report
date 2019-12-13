@@ -4,6 +4,10 @@ A tool for generating an HTML change report between images in a folder.
 
 ![Usage illustration](doc/usage-illustration.gif)
 
+# Usage
+
+Drop an images folder on the executable - the HTML report will be written in the folder.
+
 Image names are used to detect the image variants, based on the `-` character.
 
 For example, the two images :
