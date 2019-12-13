@@ -4,13 +4,15 @@ A tool for generating an HTML change report between images in one or two folders
 
 # Usage, two folders
 
+![Usage illustration](doc/usage-illustration-two-folders.gif)
+
 Drop two folders, containing images to compare, on the executable - the HTML report will be written in the parent folder.
 
 Images with the same name are compared in the report.
 
 # Usage, one folder
 
-![Usage illustration](doc/usage-illustration.gif)
+![Usage illustration](doc/usage-illustration-one-folder.gif)
 
 Drop an images folder on the executable - the HTML report will be written in the folder.
 
