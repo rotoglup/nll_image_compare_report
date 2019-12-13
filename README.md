@@ -1,6 +1,6 @@
 A tool for generating an HTML change report between images in a folder.
 
-> An example report can be seen [here](https://nllsoft.com/tools/nll_image_compare_report/example_report/).
+> An example report can be seen [here](https://nllsoft.com/tools/nll_image_compare_report/example_report/), it has been generated using the `test-images/` folder in the repo.
 
 ![Usage illustration](doc/usage-illustration.gif)
 
