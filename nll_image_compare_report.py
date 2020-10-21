@@ -32,6 +32,9 @@ def main(argv):
 
   if args.folderPath2 is None:
 
+    # Compare images in the same folder
+    # Variants are found using '-' in image names
+
     folderPath = args.folderPath1
     imageNames = findImagesInFolder(folderPath)
 
@@ -50,6 +53,9 @@ def main(argv):
 
   else:
 
+    # Compare images between two folders
+    # One folder per variant
+
     folderPath1 = args.folderPath1
     folderPath2 = args.folderPath2
 
@@ -61,10 +67,10 @@ def main(argv):
       return
 
     folderName1 = os.path.split(folderPath1)[1]
-    imageNames1 = findImagesInFolder(folderPath1)
+    imageNames1 = findImagesInFolder(folderPath1, recursive=True)
 
     folderName2 = os.path.split(folderPath2)[1]
-    imageNames2 = findImagesInFolder(folderPath2)
+    imageNames2 = findImagesInFolder(folderPath2, recursive=True)
 
     encVariants = encodeVariantsConfiguration2folder(folderName1, imageNames1, folderName2, imageNames2)
 
@@ -117,21 +123,28 @@ def splitlast(str, sep):
 
 #-----------------------------------------------------------------------------
 
-def findImagesInFolder(folderPath):
+def findImagesInFolder(folderPath, recursive=False):
 
   EXTENSIONS = ['.png', '.jpg', '.jpeg']
 
   logInfo("Scan folder for images : '%s'..." % folderPath)
   
-  filenames = os.listdir(folderPath)
-  filenames = [ x for x in filenames if os.path.isfile(os.path.join(folderPath,x)) ]
   imagenames = []
 
-  for filename in filenames:
-    name, ext = os.path.splitext(filename)
-    if ext.lower() not in EXTENSIONS:
-      continue
-    imagenames.append(filename)
+  for curdir, dirs, files in os.walk(folderPath):
+
+    if not recursive:
+      del dirs[:]
+    
+    filenames = [ x for x in files if os.path.isfile(os.path.join(curdir,x)) ]
+    filenames = [ os.path.relpath( os.path.join(curdir,x), folderPath ) for x in filenames ]
+    filenames = [ x.replace('\\', '/') for x in filenames ]
+  
+    for filename in filenames:
+      name, ext = os.path.splitext(filename)
+      if ext.lower() not in EXTENSIONS:
+        continue
+      imagenames.append(filename)
 
   logInfo("    found %d images." % len(imagenames))
 
